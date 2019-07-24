@@ -6,6 +6,8 @@ import de.hpi.isg.pojo.PackagePojo;
 import de.hpi.isg.pojo.ResourcesPojo;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -18,15 +20,13 @@ public class Processor {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    public void process(String line) throws IOException {
+    public void process(String line, List<String> format, String outputFile) throws IOException {
         DownloadPojo result = this.mapper.readValue(line, DownloadPojo.class);
 
         List<PackagePojo> packagePojos = result.getResult().getPackagePojos();
         List<ResourcesPojo> resourcesPojos = packagePojos.stream().flatMap(packagePojo -> packagePojo.getResourcesPojos().stream()).collect(Collectors.toList());
-        resourcesPojos = resourcesPojos.stream().filter(resourcesPojo -> resourcesPojo.getFormat().equals("EXCEL"))
-//                .filter(resourcesPojo -> resourcesPojo.getArchiver().contains("Downloaded OK"))
-                .collect(Collectors.toList());
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("datafile-links.txt", true));
+        resourcesPojos = resourcesPojos.stream().filter(resourcesPojo -> format.contains(resourcesPojo.getFormat())).collect(Collectors.toList());
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile, true));
         resourcesPojos.forEach(resourcesPojo -> {
             try {
                 bufferedWriter.write(resourcesPojo.getUrl() + "\t" + resourcesPojo.getName());
@@ -55,9 +55,8 @@ public class Processor {
                 continue;
             }
             BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-            processor.process(bufferedReader.readLine());
+            processor.process(bufferedReader.readLine(), Collections.singletonList("EXCEL"), outputFile.getName());
             bufferedReader.close();
         }
-//        processor.process(args[0]);
     }
 }

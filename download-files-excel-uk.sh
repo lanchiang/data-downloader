@@ -1,8 +1,8 @@
 #!/bin/bash
 
-cd data_excel/
+cd data_excel_uk/
 
-input="../datafile-links.txt"
+input="../datafile-links-excel-uk.txt"
 
 while IFS=$'\t' read -ra line
 do
@@ -12,12 +12,5 @@ do
 	then
 		echo $url_last
 		wget -O "$url_last" "${line[0]}"
-	else
-		name="${line[1]}"
-		if [[ $name == *xls ]] || [[ $name == *xlsx ]] ;
-		then
-			echo $name
-			wget -O "$name" "$url"
-		fi
 	fi
 done < "$input"

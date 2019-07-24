@@ -1,5 +1,5 @@
 .idea/
 *.iml
-data/
-datafile-links.txt
+data*/
+datafile-links*.txt
 target/
